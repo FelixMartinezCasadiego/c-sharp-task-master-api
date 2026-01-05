@@ -89,4 +89,24 @@ public class TaskController : ControllerBase // Inheriting from ControllerBase t
             return StatusCode(500, $"Internal server error: {ex.Message}"); // Returning a 500 Internal Server Error response in case of an exception
         }
     }
+
+    [HttpDelete("{id}")] // This attribute maps DELETE requests with an "id" parameter to this method
+    public ActionResult DeleteTask(int id)
+    {
+        var task = TaskDataStore.Current.Tasks.FirstOrDefault(t => t.Id == id);
+        if (task == null)
+        {
+            return NotFound("La tarea no ha sido encontrada."); // Returning a 404 Not Found response if the task does not exist
+        }
+
+        try
+        {
+            TaskDataStore.Current.Tasks.Remove(task); // Removing the task from the data store
+            return NoContent(); // Returning a 204 No Content response to indicate successful deletion
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}"); // Returning a 500 Internal Server Error response in case of an exception
+        }
+    }
 }
