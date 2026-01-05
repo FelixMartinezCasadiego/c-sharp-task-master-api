@@ -58,4 +58,35 @@ public class TaskController : ControllerBase // Inheriting from ControllerBase t
             return StatusCode(500, $"Internal server error: {ex.Message}"); // Returning a 500 Internal Server Error response in case of an exception
         }
     }
+
+    [HttpPut("{id}")] // This attribute maps PUT requests with an "id" parameter to this method
+    public ActionResult<Models.Task> UpdateTask(int id, Models.TaskInsert taskInsert)
+    {
+        var task = TaskDataStore.Current.Tasks.FirstOrDefault(t => t.Id == id);
+        if (task == null)
+        {
+            return NotFound("La tarea no ha sido encontrada."); // Returning a 404 Not Found response if the task does not exist
+        }
+
+        if(taskInsert.Title == string.Empty  || taskInsert.Title == null)
+        {
+            return BadRequest("El título de la tarea no puede estar vacío."); // Returning a 400 Bad Request response if the title is empty
+        }
+        if(taskInsert.Description == string.Empty || taskInsert.Description == null)
+        {
+            return BadRequest("La descripción de la tarea no puede estar vacía."); // Returning a 400 Bad Request response if the description is empty
+        }
+
+        try
+        {
+            task.Title = taskInsert.Title; // Updating the title of the task
+            task.Description = taskInsert.Description; // Updating the description of the task
+            task.UpdatedAt = DateTime.Now; // Updating the updated date to the current date and time   
+            return Ok(task); // Returning a 200 OK response with the updated task    
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}"); // Returning a 500 Internal Server Error response in case of an exception
+        }
+    }
 }
